@@ -1,0 +1,90 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String
+  role      Role     @default(USER)
+  password  String
+
+  clients   Client[]
+  companies Company[]
+  products  Products[]
+  requests  Request[]
+  karts     Kart[]
+  feedbacks Feedback[]
+}
+
+model Client {
+  id      Int    @id @default(autoincrement())
+  user_id Int
+  cpf     String @unique
+
+  user    User   @relation(fields: [user_id], references: [id])
+}
+
+model Company {
+  id      Int    @id @default(autoincrement())
+  user_id Int
+  cnpj    String @unique
+
+  user    User   @relation(fields: [user_id], references: [id])
+}
+
+model Products {
+  id            Int    @id @default(autoincrement())
+  user_id       Int
+  name          String
+  photo         String
+  description   String
+  price         Float
+  category_game String
+  platform      String
+  quant_stock   Int
+
+  user          User   @relation(fields: [user_id], references: [id])
+  karts         Kart[]
+}
+
+model Request {
+  id            Int    @id @default(autoincrement())
+  user_id       Int
+  quant_request Int
+
+  user          User   @relation(fields: [user_id], references: [id])
+}
+
+model Kart {
+  id         Int      @id @default(autoincrement())
+  user_id    Int
+  product_id Int
+
+  user       User     @relation(fields: [user_id], references: [id])
+  product    Products @relation(fields: [product_id], references: [id])
+}
+
+model Feedback {
+  id               Int    @id @default(autoincrement())
+  user_id          Int
+  comment          String
+  stars_avaliation Int
+
+  user             User   @relation(fields: [user_id], references: [id])
+}
